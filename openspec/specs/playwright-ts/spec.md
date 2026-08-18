@@ -21,11 +21,15 @@ The `playwright-ts/` scaffold SHALL provide separate, clearly named locations fo
 - **THEN** there is an obvious, pre-existing location for it that is distinct from the locations for UI, mocking, and component tests
 
 ### Requirement: Runnable scaffold with zero test cases
-The scaffold SHALL be runnable — the Playwright test runner executes successfully against it — even though it contains zero test cases, so the workspace is verified as correctly wired before real tests are added.
+The scaffold SHALL be runnable — the Playwright test runner executes successfully against every project — even where a project contains zero test cases, so the workspace is verified as correctly wired independent of how many real tests exist yet.
 
 #### Scenario: Verifying the empty scaffold
-- **WHEN** a team member runs the test command in a freshly scaffolded `playwright-ts/`
+- **WHEN** a team member runs the test command for a project with no test files (`ui` or `mocking`)
 - **THEN** the command completes without configuration errors and reports zero tests found
+
+#### Scenario: Verifying the api project's seed test
+- **WHEN** a team member runs the test command for the `api` project
+- **THEN** the command completes without configuration errors and its seed test passes, since the seed establishes shared starting state rather than asserting product behavior
 
 ### Requirement: Configurable TestPortal target
 The scaffold SHALL define a configuration point (e.g. an environment variable) for the TestPortal base URL/API endpoint that tests will eventually target, without hardcoding a live TestPortal instance into the scaffold.
