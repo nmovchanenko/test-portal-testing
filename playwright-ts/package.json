@@ -1,0 +1,20 @@
+{
+  "name": "playwright-ts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Playwright + TypeScript testing playground for TestPortal",
+  "scripts": {
+    "test": "playwright test --pass-with-no-tests",
+    "test:api": "playwright test --project=api --pass-with-no-tests",
+    "test:ui": "playwright test --project=ui --pass-with-no-tests",
+    "test:mocking": "playwright test --project=mocking --pass-with-no-tests",
+    "report": "playwright show-report"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1",
+    "@types/node": "^26.2.0",
+    "dotenv": "^17.4.2",
+    "typescript": "^7.0.2"
+  }
+}
