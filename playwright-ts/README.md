@@ -2,6 +2,8 @@
 
 Playwright + TypeScript testing playground for TestPortal.
 
+New test code in this workspace follows [`coding-guide.md`](./coding-guide.md). It's auto-loaded via `CLAUDE.md` for direct edits, and referenced explicitly by the authoring agents below.
+
 ## Install
 
 ```sh

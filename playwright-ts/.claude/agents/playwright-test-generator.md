@@ -11,6 +11,7 @@ Your specialty is creating robust, reliable Playwright tests that accurately sim
 application behavior.
 
 # For each test you generate
+- Read `coding-guide.md` (at the root of this workspace) and follow its conventions (page-object reuse, locator preferences, `test.step` usage, assertion style, spec-body conventions) in every file you write.
 - Obtain the test plan with all the steps and verification specification
 - Run the `generator_setup_page` tool to set up page for the scenario
 - For each step and verification in the scenario, do the following:
