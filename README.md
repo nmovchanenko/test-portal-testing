@@ -22,6 +22,7 @@ Each framework/language combination lives in its own self-contained directory, s
 - **Naming**: each framework/language combination gets its own top-level directory named `<framework>-<language>` in kebab-case (e.g. `playwright-ts`, `cypress-ts`, `playwright-java`, `webdriver-io-js`).
 - **Self-contained**: a framework directory has its own dependency manifest, its own config, and its own README. It does not depend on shared root-level tooling beyond what's documented here — you should be able to `cd` into it and install/run without needing anything else in the repo.
 - **Minimum README content**: every framework directory's README documents which framework/language it uses, how to install dependencies, how to run its tests, and which testing approaches (API, UI, mocking, component, etc.) it currently covers.
+- **Coding guides are owned per-directory**: a framework directory's coding guide (e.g. `playwright-ts/coding-guide.md`), if it has one, applies only to that directory. Other framework directories do not inherit or defer to it — each writes its own coding guide if and when it needs one.
 
 ## Adding a new framework directory
 
