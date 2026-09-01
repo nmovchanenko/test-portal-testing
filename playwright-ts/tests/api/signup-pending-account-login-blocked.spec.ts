@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { uniqueSignupEmail, VALID_SIGNUP_PASSWORD } from './fixtures/signup';
+import { uniqueSignupEmail, VALID_SIGNUP_PASSWORD } from '../../fixtures/signup';
 
 test.describe('Pending account cannot authenticate until approved', () => {
   test('login immediately after signup is blocked with 403 and no tokens', async ({

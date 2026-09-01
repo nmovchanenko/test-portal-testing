@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { buildSignupPayload } from './fixtures/signup';
+import { buildSignupPayload } from '../../fixtures/signup';
 
 test.describe('POST /api/v2/auth/signup — success', () => {
   test('valid signup returns 201 with a pending account and no secret fields', async ({

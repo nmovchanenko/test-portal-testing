@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { buildSignupPayload, uniqueSignupEmail, VALID_SIGNUP_PASSWORD } from './fixtures/signup';
+import { buildSignupPayload, uniqueSignupEmail, VALID_SIGNUP_PASSWORD } from '../../fixtures/signup';
 
 /**
  * All cases here are rejected before the signup service persists anything

@@ -1,32 +1,17 @@
-import { test, expect, Page } from '@playwright/test';
+import { test, expect } from '@playwright/test';
+import { SignupPage } from '../../pages/signup.page';
 
 const SIGNUP_API_PATTERN = '**/api/v2/auth/signup';
 
 const VALID_NAME = 'QA Outcome User';
 const VALID_PASSWORD = 'Passw0rd123';
 
-function signupFields(page: Page) {
-  return {
-    name: page.getByRole('textbox', { name: 'Enter your full name' }),
-    email: page.getByRole('textbox', { name: 'Enter your email' }),
-    password: page.getByRole('textbox', { name: 'Enter your password' }),
-    confirmPassword: page.getByRole('textbox', { name: 'Confirm your password' }),
-    submit: page.getByRole('button', { name: 'Sign up' }),
-  };
-}
-
-async function fillValidForm(page: Page, email: string) {
-  const fields = signupFields(page);
-  await fields.name.fill(VALID_NAME);
-  await fields.email.fill(email);
-  await fields.password.fill(VALID_PASSWORD);
-  await fields.confirmPassword.fill(VALID_PASSWORD);
-  return fields;
-}
-
 test.describe('Signup page — submission outcomes (mocked)', () => {
+  let signupPage: SignupPage;
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('/signup');
+    signupPage = new SignupPage(page);
+    await signupPage.goto();
   });
 
   test('successful (201) response navigates to /login with the generic success message and submitted email, ignoring the mocked message body', async ({
@@ -46,12 +31,13 @@ test.describe('Signup page — submission outcomes (mocked)', () => {
       }),
     );
 
-    const fields = await fillValidForm(page, email);
-    await fields.submit.click();
+    await signupPage.fillForm({ name: VALID_NAME, email, password: VALID_PASSWORD, confirmPassword: VALID_PASSWORD });
+    await signupPage.submit();
 
     await expect(page).toHaveURL(/\/login$/);
     await expect(
       page.getByText('Account created successfully! Please sign in to continue.'),
+      'success message should be the client\'s generic copy, not the mocked backend message',
     ).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Enter your email' })).toHaveValue(email);
   });
@@ -70,13 +56,16 @@ test.describe('Signup page — submission outcomes (mocked)', () => {
       }),
     );
 
-    const fields = await fillValidForm(page, email);
-    await fields.submit.click();
+    await signupPage.fillForm({ name: VALID_NAME, email, password: VALID_PASSWORD, confirmPassword: VALID_PASSWORD });
+    await signupPage.submit();
 
     await expect(page).toHaveURL(/\/signup$/);
-    await expect(page.getByText('Failed to create account. Please try again.')).toBeVisible();
-    await expect(fields.name).toHaveValue(VALID_NAME);
-    await expect(fields.email).toHaveValue(email);
+    await expect(
+      page.getByText('Failed to create account. Please try again.'),
+      'failure message should be the client\'s generic copy',
+    ).toBeVisible();
+    await expect(signupPage.nameInput, 'name input should retain its value after a failed submission').toHaveValue(VALID_NAME);
+    await expect(signupPage.emailInput, 'email input should retain its value after a failed submission').toHaveValue(email);
   });
 
   test('failed (4xx) response — any other rejection cause — shows the same generic failure message and stays on /signup', async ({
@@ -91,11 +80,14 @@ test.describe('Signup page — submission outcomes (mocked)', () => {
       }),
     );
 
-    const fields = await fillValidForm(page, email);
-    await fields.submit.click();
+    await signupPage.fillForm({ name: VALID_NAME, email, password: VALID_PASSWORD, confirmPassword: VALID_PASSWORD });
+    await signupPage.submit();
 
     await expect(page).toHaveURL(/\/signup$/);
-    await expect(page.getByText('Failed to create account. Please try again.')).toBeVisible();
-    await expect(fields.email).toHaveValue(email);
+    await expect(
+      page.getByText('Failed to create account. Please try again.'),
+      'failure message should be the same generic copy regardless of rejection cause',
+    ).toBeVisible();
+    await expect(signupPage.emailInput, 'email input should retain its value after a failed submission').toHaveValue(email);
   });
 });

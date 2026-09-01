@@ -1,4 +1,5 @@
 import { test, expect, Page } from '@playwright/test';
+import { SignupPage } from '../../pages/signup.page';
 
 const SIGNUP_API_PATTERN = '**/api/v2/auth/signup';
 
@@ -6,100 +7,91 @@ const VALID_NAME = 'QA Valid User';
 const VALID_EMAIL = 'qa.valid@ventionteams.com';
 const VALID_PASSWORD = 'Passw0rd123';
 
-function signupFields(page: Page) {
-  return {
-    name: page.getByRole('textbox', { name: 'Enter your full name' }),
-    email: page.getByRole('textbox', { name: 'Enter your email' }),
-    password: page.getByRole('textbox', { name: 'Enter your password' }),
-    confirmPassword: page.getByRole('textbox', { name: 'Confirm your password' }),
-    submit: page.getByRole('button', { name: 'Sign up' }),
-  };
-}
-
-/** Fails the test if a signup API request is observed during `action`. */
-async function expectNoSignupRequest(page: Page, action: () => Promise<void>) {
-  let requested = false;
-  const onRequest = (request: { url(): string; method(): string }) => {
-    if (request.url().includes('/api/v2/auth/signup') && request.method() === 'POST') {
-      requested = true;
-    }
-  };
-  page.on('request', onRequest);
-  try {
-    await action();
-  } finally {
-    page.off('request', onRequest);
-  }
-  expect(requested).toBe(false);
-}
-
 test.describe('Signup page — client-side field validation (mocked)', () => {
+  let signupPage: SignupPage;
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('/signup');
+    signupPage = new SignupPage(page);
+    await signupPage.goto();
   });
 
   test('invalid name shows an inline error and makes no API request', async ({ page }) => {
-    const fields = signupFields(page);
-    await fields.name.fill('A');
-    await fields.email.fill(VALID_EMAIL);
-    await fields.password.fill(VALID_PASSWORD);
-    await fields.confirmPassword.fill(VALID_PASSWORD);
+    await signupPage.fillForm({
+      name: 'A',
+      email: VALID_EMAIL,
+      password: VALID_PASSWORD,
+      confirmPassword: VALID_PASSWORD,
+    });
 
-    await expectNoSignupRequest(page, () => fields.submit.click());
+    await expectNoSignupRequest(page, () => signupPage.submit());
 
-    await expect(page.getByText('Name must be at least 2 characters')).toBeVisible();
+    await expect(
+      page.getByText('Name must be at least 2 characters'),
+      'invalid name should show an inline error',
+    ).toBeVisible();
   });
 
   test('invalid email format shows an inline error and makes no API request', async ({
     page,
   }) => {
-    const fields = signupFields(page);
-    await fields.name.fill(VALID_NAME);
-    await fields.email.fill('not-an-email');
-    await fields.password.fill(VALID_PASSWORD);
-    await fields.confirmPassword.fill(VALID_PASSWORD);
+    await signupPage.fillForm({
+      name: VALID_NAME,
+      email: 'not-an-email',
+      password: VALID_PASSWORD,
+      confirmPassword: VALID_PASSWORD,
+    });
 
-    await expectNoSignupRequest(page, () => fields.submit.click());
+    await expectNoSignupRequest(page, () => signupPage.submit());
 
-    await expect(page.getByText('Please enter a valid email address')).toBeVisible();
+    await expect(
+      page.getByText('Please enter a valid email address'),
+      'invalid email format should show an inline error',
+    ).toBeVisible();
   });
 
   test('weak password shows an inline error and makes no API request', async ({ page }) => {
-    const fields = signupFields(page);
-    await fields.name.fill(VALID_NAME);
-    await fields.email.fill(VALID_EMAIL);
-    await fields.password.fill('alllowercase1');
-    await fields.confirmPassword.fill('alllowercase1');
+    await signupPage.fillForm({
+      name: VALID_NAME,
+      email: VALID_EMAIL,
+      password: 'alllowercase1',
+      confirmPassword: 'alllowercase1',
+    });
 
-    await expectNoSignupRequest(page, () => fields.submit.click());
+    await expectNoSignupRequest(page, () => signupPage.submit());
 
     await expect(
       page.getByText('Password must contain at least one uppercase character'),
+      'weak password should show an inline error',
     ).toBeVisible();
   });
 
   test('mismatched confirm password shows an inline error and makes no API request', async ({
     page,
   }) => {
-    const fields = signupFields(page);
-    await fields.name.fill(VALID_NAME);
-    await fields.email.fill(VALID_EMAIL);
-    await fields.password.fill(VALID_PASSWORD);
-    await fields.confirmPassword.fill('Different123');
+    await signupPage.fillForm({
+      name: VALID_NAME,
+      email: VALID_EMAIL,
+      password: VALID_PASSWORD,
+      confirmPassword: 'Different123',
+    });
 
-    await expectNoSignupRequest(page, () => fields.submit.click());
+    await expectNoSignupRequest(page, () => signupPage.submit());
 
-    await expect(page.getByText("Passwords don't match")).toBeVisible();
+    await expect(
+      page.getByText("Passwords don't match"),
+      'mismatched confirm password should show an inline error',
+    ).toBeVisible();
   });
 
   test('submit button shows a loading state and is disabled while the response is pending', async ({
     page,
   }) => {
-    const fields = signupFields(page);
-    await fields.name.fill(VALID_NAME);
-    await fields.email.fill(VALID_EMAIL);
-    await fields.password.fill(VALID_PASSWORD);
-    await fields.confirmPassword.fill(VALID_PASSWORD);
+    await signupPage.fillForm({
+      name: VALID_NAME,
+      email: VALID_EMAIL,
+      password: VALID_PASSWORD,
+      confirmPassword: VALID_PASSWORD,
+    });
 
     let releaseResponse!: () => void;
     const responseGate = new Promise<void>((resolve) => {
@@ -117,12 +109,28 @@ test.describe('Signup page — client-side field validation (mocked)', () => {
       });
     });
 
-    await fields.submit.click();
+    await signupPage.submit();
 
-    const loadingButton = page.getByRole('button', { name: 'Creating account...' });
-    await expect(loadingButton).toBeVisible();
-    await expect(loadingButton).toBeDisabled();
+    await expect(signupPage.loadingSubmitButton, 'submit button should show a loading state').toBeVisible();
+    await expect(signupPage.loadingSubmitButton, 'submit button should be disabled while pending').toBeDisabled();
 
     releaseResponse();
   });
 });
+
+/** Fails the test if a signup API request is observed during `action`. */
+async function expectNoSignupRequest(page: Page, action: () => Promise<void>) {
+  let hasSignupRequest = false;
+  const onRequest = (request: { url(): string; method(): string }) => {
+    if (request.url().includes('/api/v2/auth/signup') && request.method() === 'POST') {
+      hasSignupRequest = true;
+    }
+  };
+  page.on('request', onRequest);
+  try {
+    await action();
+  } finally {
+    page.off('request', onRequest);
+  }
+  expect(hasSignupRequest, 'no signup request should be sent for invalid input').toBe(false);
+}
