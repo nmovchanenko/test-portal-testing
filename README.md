@@ -16,6 +16,7 @@ Each framework/language combination lives in its own self-contained directory, s
 | Directory | Framework | Language | Status |
 |---|---|---|---|
 | [`playwright-ts/`](./playwright-ts) | Playwright | TypeScript | Scaffolded |
+| [`cypress-ts/`](./cypress-ts) | Cypress | TypeScript | Scaffolded |
 
 ## Conventions
 
