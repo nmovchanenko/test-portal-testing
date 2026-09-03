@@ -1,0 +1,19 @@
+{
+  "name": "cypress-ts",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Cypress + TypeScript testing playground for TestPortal",
+  "scripts": {
+    "cy:open": "cypress open",
+    "test": "cypress run",
+    "cy:run": "cypress run",
+    "test:json": "mkdir -p .tmp && cypress run --reporter json --quiet > .tmp/results.json"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "cypress": "^15.0.0",
+    "dotenv": "^17.4.2",
+    "typescript": "^5.7.0"
+  }
+}
